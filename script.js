@@ -14,6 +14,7 @@ class Paper {
   currentPaperX = 0;
   currentPaperY = 0;
   rotating = false;
+  touchStartTime = 0;
 
   init(paper) {
     this.paper = paper;
@@ -40,13 +41,20 @@ class Paper {
     document.addEventListener('touchmove', (e) => {
       const touch = e.touches[0];
       this.handleMove(touch.clientX, touch.clientY);
-      e.preventDefault(); // Prevent default touch behavior
+      e.preventDefault();
     }, { passive: false });
 
     paper.addEventListener('touchstart', (e) => {
       const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      // Skip if touching a link
+      if (target.closest('a')) {
+        return;
+      }
+      
       this.handleStart(touch.clientX, touch.clientY);
-      e.preventDefault(); // Prevent default touch behavior
+      e.preventDefault();
     }, { passive: false });
 
     window.addEventListener('touchend', () => {
@@ -96,6 +104,7 @@ class Paper {
   handleStart(clientX, clientY) {
     if (this.holdingPaper) return;
     this.holdingPaper = true;
+    this.touchStartTime = Date.now();
 
     this.paper.style.zIndex = highestZ;
     highestZ += 1;
